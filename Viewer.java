@@ -20,7 +20,7 @@ class Viewer
 		RectangleShape rects[][] = new RectangleShape[4][4];
 
 		IAudioData data = new AudioData(new WavAudioFile(args[0]), new JTransformsFFT(1024));
-		ITrackGenerator generator = new LessDumbTrackGenerator();
+		ITrackGenerator generator = new FFTTrackGenerator();
 		Track track = generator.GenerateTrack(data);
 
 		for(int x=0; x<4; x++)
