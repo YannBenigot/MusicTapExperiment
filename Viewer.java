@@ -13,7 +13,33 @@ class Viewer
 {
 	static int Time = 30;
 
-	public static void main(String[] args) throws AudioReadException, IOException
+	public static Texture DataToTexture(ITransform in, int size) throws TextureCreationException, AudioReadException
+	{
+		double[] data = in.Next();
+		int t = 0;
+		Image image = new Image();
+		image.create(size, data.length);
+
+		do
+		{
+			for(int i=0; i<data.length; i++)
+			{
+				double a = data[i]/500;
+				if(a > 1.0)
+					a = 1.0;
+				image.setPixel(t, data.length-i-1, new Color((int) (a*255), (int) (a*255), (int) (a*255)));
+			}
+
+			t++;
+			data = in.Next();
+		} while(t < size);
+
+		Texture tex = new Texture();
+		tex.loadFromImage(image);
+		return tex;
+	}
+
+	public static void main(String[] args) throws AudioReadException, IOException, TextureCreationException
 	{
 		RenderWindow window = new RenderWindow(new VideoMode(800, 600), "Manger");
 		AudioStream music = new AudioStream(new FileInputStream(new File(args[0])));
@@ -22,6 +48,9 @@ class Viewer
 		IAudioData data = new AudioData(new WavAudioFile(args[0]), new JTransformsFFT(1024));
 		ITrackGenerator generator = new FFTTrackGenerator();
 		Track track = generator.GenerateTrack(data);
+		Texture tex = DataToTexture(new PeakTransform(new FFTTransform(new WindowTransform(new KeepTransform(new WavAudioFile(args[0]), 8192, 8192-1024), new HannWindow(), 8192), new JTransformsFFT(8192)), 16), data.GetLength()/1024);
+
+		Sprite s = new Sprite(tex);
 
 		for(int x=0; x<4; x++)
 			for(int y=0; y<4; y++)
@@ -42,6 +71,11 @@ class Viewer
 		Clock clock = new Clock();
 		AudioPlayer.player.start(music);
 		clock.restart();
+		RectangleShape line = new RectangleShape(new Vector2f(1, 600));
+		line.setPosition(400, 0);
+		line.setFillColor(new Color(255, 255, 255, 128));
+		s.setScale(1.0f, 1.0f);
+
 		while(true)
 		{
 			for(int x=0; x<4; x++)
@@ -71,7 +105,11 @@ class Viewer
 				for(int y=0; y<4; y++)
 					rects[x][y].setFillColor(new Color(255 * ttx[x][y] / Time, 0, 0));
 
+			s.setPosition(-(t+3)*44100/60/1024 + 400, 600-4096);
+
 			window.clear();
+			window.draw(s);
+			window.draw(line);
 			for(int x=0; x<4; x++)
 				for(int y=0; y<4; y++)
 					window.draw(rects[x][y]);

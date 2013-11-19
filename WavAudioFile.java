@@ -19,7 +19,7 @@ public class WavAudioFile implements IAudioFile
 
 	public int GetLength()
 	{
-		return (int) file.getNumFrames()/file.getNumChannels();
+		return (int) file.getNumFrames();
 	}
 
 	public double[] NextSamples(int length) throws AudioReadException
