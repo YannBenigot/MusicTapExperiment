@@ -11,33 +11,34 @@ public class TopHarmonicsTransform implements ITransform
 		this.N = N;
 	}
 
-	public double[] Next()
+	public double[] Next() throws AudioReadException
 	{
-		double[] data = in.Next();
+		double[] data = in.Next();
 		if(data == null)
 			return null;
 
-		HashSet<int> maxs = new HashSet<int>();
+		boolean maxs[] = new boolean[data.length];
 
 		for(int m=0; m<N; m++)
 		{
-			double max = 0;
+			double max = -1.0;
 			int imax = -1;
 			for(int i=0; i<data.length; i++)
 			{
-				if(maxs.contains(i) || data[i] < max)
+				if(maxs[i] || data[i] < max)
 					continue;
 				imax = i;
 				max = data[i];
 			}
-			maxs.add(imax);
+			maxs[imax] = true;
 		}
 
 
 		double[] res = new double[data.length];
-		for(int m: maxs)
+		for(int i=0; i<data.length; i++)
 		{
-			res[m] = data[m];
+			if(maxs[i])
+				res[i] = data[i];
 		}
 
 		return res;
