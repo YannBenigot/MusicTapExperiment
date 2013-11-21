@@ -50,7 +50,7 @@ class Viewer
 		IAudioData data = new AudioData(new WavAudioFile(args[0]), new JTransformsFFT(1024));
 		ITrackGenerator generator = new FFTTrackGenerator();
 		Track track = generator.GenerateTrack(data);
-		Texture tex = DataToTexture(new FFTTransform(new JTransformsFFT(8192), new WindowTransform(new HannWindow(), 8192, new KeepTransform(8, new AudioFileTransformAdapter(1024, new WavAudioFile(args[0]))))));
+		Texture tex = DataToTexture(new TopHarmonicsTransform(8, new PeakTransform(16, new FFTTransform(new JTransformsFFT(8192), new WindowTransform(new HannWindow(), 8192, new KeepTransform(8, new AudioFileTransformAdapter(1024, new WavAudioFile(args[0]))))))));
 
 		Sprite s = new Sprite(tex);
 

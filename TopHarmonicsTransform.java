@@ -6,7 +6,7 @@ public class TopHarmonicsTransform extends BaseTransform
 
 	public TopHarmonicsTransform(int N, ITransform in)
 	{
-		super(int);
+		super(in);
 		this.in = in;
 		this.N = N;
 	}
