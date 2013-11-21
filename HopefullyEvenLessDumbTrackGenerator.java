@@ -4,11 +4,11 @@ public class HopefullyEvenLessDumbTrackGenerator implements ITrackGenerator
 {
 	private ITransform GetTransform(IAudioFile file) throws AudioReadException
 	{
-		return new IgnoreSmallHarmonicsTransform(0.05, new TopHarmonicsTransform(8, new PeakTransform(16, new FFTTransform(new JTransformsFFT(8192), new WindowTransform(new HannWindow(), 8192, new KeepTransform(8, new AudioFileTransformAdapter(1024, file)))))));
+		return new IgnoreSmallHarmonicsTransform(1.00, new TopHarmonicsTransform(8, new PeakTransform(16, new FFTTransform(new JTransformsFFT(8192), new WindowTransform(new HannWindow(), 8192, new KeepTransform(8, new AudioFileTransformAdapter(1024, file)))))));
 	}
 
 	final static int MaxFreq = 512;
-	final static int Timeout = 3;
+	final static int Timeout = 10;
 
 	public Track GenerateTrack(IAudioFile file) throws AudioReadException
 	{
@@ -45,7 +45,7 @@ public class HopefullyEvenLessDumbTrackGenerator implements ITrackGenerator
 					int pos = j * 16 / MaxFreq;
 
 					if(up[pos] == 0)
-						noteAllocator.Add((i-3) * blockLength * 60 / 44100, j);
+						noteAllocator.Add((i-3) * 1024 * 60 / 44100, j);
 
 					up[pos] = Timeout;
 				}

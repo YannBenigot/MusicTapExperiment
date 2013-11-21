@@ -11,12 +11,13 @@ import sun.audio.AudioStream;
 
 class Viewer
 {
-	static int Time = 30;
+	final static int Time = 30;
+	final static int MaxTextureSize = 8192;
 
 	public static Texture DataToTexture(ITransform in) throws TextureCreationException, AudioReadException
 	{
-		int size = (in.StreamLength() > 2048 ? 2048 : in.StreamLength());
-		int length = (in.BlockLength() > 2048 ? 2048 : in.BlockLength());
+		int size = (in.StreamLength() > MaxTextureSize ? MaxTextureSize : in.StreamLength());
+		int length = (in.BlockLength() > MaxTextureSize ? MaxTextureSize : in.BlockLength());
 		double[] data = in.Next();
 		int t = 0;
 		Image image = new Image();
