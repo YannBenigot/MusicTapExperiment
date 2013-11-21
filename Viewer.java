@@ -50,7 +50,7 @@ class Viewer
 		IAudioFile data = new WavAudioFile(args[0]);
 		ITrackGenerator generator = new HopefullyEvenLessDumbTrackGenerator();
 		Track track = generator.GenerateTrack(data);
-		Texture tex = DataToTexture(new TopHarmonicsTransform(8, new PeakTransform(16, new FFTTransform(new JTransformsFFT(8192), new WindowTransform(new HannWindow(), 8192, new KeepTransform(8, new AudioFileTransformAdapter(1024, new WavAudioFile(args[0]))))))));
+		Texture tex = DataToTexture(new IgnoreSmallHarmonicsTransform(1.0, new TopHarmonicsTransform(8, new PeakTransform(16, new TruncateTransform(512, new FFTTransform(new JTransformsFFT(8192), new WindowTransform(new HannWindow(), 8192, new KeepTransform(8, new AudioFileTransformAdapter(1024, new WavAudioFile(args[0]))))))))));
 
 		Sprite s = new Sprite(tex);
 

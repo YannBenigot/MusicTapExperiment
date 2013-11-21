@@ -4,10 +4,9 @@ public class HopefullyEvenLessDumbTrackGenerator implements ITrackGenerator
 {
 	private ITransform GetTransform(IAudioFile file) throws AudioReadException
 	{
-		return new TopHarmonicsTransform(8, new PeakTransform(16, new FFTTransform(new JTransformsFFT(8192), new WindowTransform(new HannWindow(), 8192, new KeepTransform(8, new AudioFileTransformAdapter(1024, file))))));
+		return new IgnoreSmallHarmonicsTransform(0.05, new TopHarmonicsTransform(8, new PeakTransform(16, new FFTTransform(new JTransformsFFT(8192), new WindowTransform(new HannWindow(), 8192, new KeepTransform(8, new AudioFileTransformAdapter(1024, file)))))));
 	}
 
-	final static double NoteKeepFactor = 0.05;
 	final static int MaxFreq = 512;
 	final static int Timeout = 3;
 
@@ -41,7 +40,7 @@ public class HopefullyEvenLessDumbTrackGenerator implements ITrackGenerator
 
 			for(int j=0; j<MaxFreq; j++)
 			{
-				if(data[j] > avg * NoteKeepFactor)
+				if(data[j] > 0.0)
 				{
 					int pos = j * 16 / MaxFreq;
 
