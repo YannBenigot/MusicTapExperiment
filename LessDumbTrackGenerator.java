@@ -4,7 +4,7 @@ class LessDumbTrackGenerator implements ITrackGenerator
 {
 	static int MinTime = 30;
 	static int FrameSize = 1024;
-	public Track GenerateTrack(IAudioData data) throws AudioReadException
+	public Track GenerateTrack(IAudioFile data) throws AudioReadException
 	{
 		double energy[] = new double[data.GetLength()/FrameSize];
 		double avg = 0;

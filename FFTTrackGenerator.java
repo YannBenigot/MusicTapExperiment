@@ -9,8 +9,9 @@ class FFTTrackGenerator implements ITrackGenerator
 	static double SmoothFactor = 0.9;
 	static double NoteFactor = 3;
 
-	public Track GenerateTrack(IAudioData data) throws AudioReadException
+	public Track GenerateTrack(IAudioFile data) throws AudioReadException
 	{
+		IFFT fftComputer = new JTransformsFFT(FrameSize);
 		double average[] = new double[16];
 		double energy[] = new double[16];
 		double avg = 0;
@@ -18,7 +19,7 @@ class FFTTrackGenerator implements ITrackGenerator
 
 		for(int i=0; i<3; i++)
 		{
-			double[] fft = data.NextFFT(FrameSize);
+			double[] fft = fftComputer.GetFFT(data.NextSamples(FrameSize));
 			for(int j=0; j<16; j++)
 			{
 				energy[j] = 0;
@@ -33,7 +34,7 @@ class FFTTrackGenerator implements ITrackGenerator
 		for(int i=3; i<data.GetLength()/FrameSize-1; i++)
 		{
 			int t = i * 1024 * 60 / 44100;
-			double[] fft = data.NextFFT(FrameSize);
+			double[] fft = fftComputer.GetFFT(data.NextSamples(FrameSize));
 
 			for(int j=0; j<16; j++)
 			{
