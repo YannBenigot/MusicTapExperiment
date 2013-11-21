@@ -48,7 +48,7 @@ class Viewer
 		RectangleShape rects[][] = new RectangleShape[4][4];
 
 		IAudioFile data = new WavAudioFile(args[0]);
-		ITrackGenerator generator = new FFTTrackGenerator();
+		ITrackGenerator generator = new HopefullyEvenLessDumbTrackGenerator();
 		Track track = generator.GenerateTrack(data);
 		Texture tex = DataToTexture(new TopHarmonicsTransform(8, new PeakTransform(16, new FFTTransform(new JTransformsFFT(8192), new WindowTransform(new HannWindow(), 8192, new KeepTransform(8, new AudioFileTransformAdapter(1024, new WavAudioFile(args[0]))))))));
 
