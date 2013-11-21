@@ -1,5 +1,3 @@
-import java.util.HashSet;
-
 public class TopHarmonicsTransform extends BaseTransform
 {
 	private int N;
