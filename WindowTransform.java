@@ -1,14 +1,13 @@
-public class WindowTransform implements ITransform
+public class WindowTransform extends BaseTransform
 {
 	private int N;
-	private ITransform in;
 	double[] windowData;
 	IWindow window;
 
-	public WindowTransform(ITransform in, IWindow window, int N)
+	public WindowTransform(IWindow window, int N, ITransform in)
 	{
+		super(in);
 		this.N = N;
-		this.in = in;
 
 		this.windowData = new double[N];
 		for(int i=0; i<N; i++)

@@ -4,7 +4,9 @@ import java.io.IOException;
 public class WavAudioFile implements IAudioFile
 {
 	private WavFile file;
-	public WavAudioFile(String filename) throws AudioReadException
+	private String filename;
+
+	private void Load() throws AudioReadException
 	{
 		try
 		{
@@ -15,6 +17,13 @@ public class WavAudioFile implements IAudioFile
 		{
 			throw new AudioReadException(e);
 		}
+	}
+
+
+	public WavAudioFile(String filename) throws AudioReadException
+	{
+		this.filename = filename;
+		Load();
 	}
 
 	public int GetLength()
@@ -45,6 +54,11 @@ public class WavAudioFile implements IAudioFile
 		{
 			throw new AudioReadException(e);
 		}
+	}
+
+	public void Rewind() throws AudioReadException
+	{
+		Load();
 	}
 }
 

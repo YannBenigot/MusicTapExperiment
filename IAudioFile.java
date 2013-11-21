@@ -1,6 +1,7 @@
 public interface IAudioFile
 {
-	public int GetLength() throws AudioReadException;
-	public double[] NextSamples(int length) throws AudioReadException;
+	int GetLength() throws AudioReadException;
+	double[] NextSamples(int length) throws AudioReadException;
+	void Rewind() throws AudioReadException;
 }
 

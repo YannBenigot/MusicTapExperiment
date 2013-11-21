@@ -1,22 +1,27 @@
-public class KeepTransform implements ITransform
+import java.util.Arrays;
+
+public class KeepTransform extends BaseTransform
 {
-	private IAudioFile in;
-	private int N, overlap;
-	private int newCount;
+	private int N, newCount, overlap;
 	private double[] data;
 
-	public KeepTransform(IAudioFile file, int N, int overlap)
+	public KeepTransform(int blockCount, ITransform in) throws AudioReadException
 	{
-		this.in = file;
-		this.N = N;
+		super(in);
+		this.N = blockCount * in.BlockLength();
+		this.overlap = (blockCount - 1) * in.BlockLength();
 		this.newCount = N - overlap;
-		this.overlap = overlap;
 		this.data = new double[N];
+	}
+
+	public int BlockLength()
+	{
+		return N;
 	}
 
 	public double[] Next() throws AudioReadException
 	{
-		double[] newData = in.NextSamples(newCount);
+		double[] newData = in.Next();
 		if(newData == null)
 			return null;
 
@@ -29,4 +34,9 @@ public class KeepTransform implements ITransform
 		return data.clone();
 	}
 
+	public void Rewind() throws AudioReadException
+	{
+		Arrays.fill(data, 0);
+		in.Rewind();
+	}
 }

@@ -1,12 +1,12 @@
 import java.util.HashSet;
 
-public class TopHarmonicsTransform implements ITransform
+public class TopHarmonicsTransform extends BaseTransform
 {
-	private ITransform in;
 	private int N;
 
-	public TopHarmonicsTransform(ITransform in, int N)
+	public TopHarmonicsTransform(int N, ITransform in)
 	{
+		super(int);
 		this.in = in;
 		this.N = N;
 	}

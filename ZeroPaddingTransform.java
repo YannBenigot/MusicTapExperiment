@@ -1,12 +1,11 @@
-public class ZeroPaddingTransform implements ITransform
+public class ZeroPaddingTransform extends BaseTransform
 {
-	private ITransform in;
 	private int N;
 
-	public ZeroPaddingTransform(ITransform in, int N)
+	public ZeroPaddingTransform(int N, ITransform in)
 	{
+		super(in);
 		this.N = N;
-		this.in = in;
 	}
 
 	public double[] Next() throws AudioReadException

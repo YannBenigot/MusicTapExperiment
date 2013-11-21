@@ -1,12 +1,16 @@
-public class FFTTransform implements ITransform
+public class FFTTransform extends BaseTransform
 {
 	private IFFT fft;
-	private ITransform in;
 
-	public FFTTransform(ITransform in, IFFT fft)
+	public FFTTransform(IFFT fft, ITransform in)
 	{
-		this.in = in;
+		super(in);
 		this.fft = fft;
+	}
+
+	public int BlockLength() throws AudioReadException
+	{
+		return in.BlockLength() / 2;
 	}
 
 	public double[] Next() throws AudioReadException

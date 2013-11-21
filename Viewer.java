@@ -13,8 +13,10 @@ class Viewer
 {
 	static int Time = 30;
 
-	public static Texture DataToTexture(ITransform in, int size, int length) throws TextureCreationException, AudioReadException
+	public static Texture DataToTexture(ITransform in) throws TextureCreationException, AudioReadException
 	{
+		int size = (in.StreamLength() > 2048 ? 2048 : in.StreamLength());
+		int length = (in.BlockLength() > 2048 ? 2048 : in.BlockLength());
 		double[] data = in.Next();
 		int t = 0;
 		Image image = new Image();
@@ -48,7 +50,7 @@ class Viewer
 		IAudioData data = new AudioData(new WavAudioFile(args[0]), new JTransformsFFT(1024));
 		ITrackGenerator generator = new FFTTrackGenerator();
 		Track track = generator.GenerateTrack(data);
-		Texture tex = DataToTexture(new TopHarmonicsTransform(new PeakTransform(new FFTTransform(new WindowTransform(new KeepTransform(new WavAudioFile(args[0]), 8192, 8192-1024), new HannWindow(), 8192), new JTransformsFFT(8192)), 16), 8), 2048, 2048);//data.GetLength()/1024);
+		Texture tex = DataToTexture(new FFTTransform(new JTransformsFFT(8192), new WindowTransform(new HannWindow(), 8192, new KeepTransform(8, new AudioFileTransformAdapter(1024, new WavAudioFile(args[0]))))));
 
 		Sprite s = new Sprite(tex);
 
@@ -105,7 +107,7 @@ class Viewer
 				for(int y=0; y<4; y++)
 					rects[x][y].setFillColor(new Color(255 * ttx[x][y] / Time, 0, 0));
 
-			s.setPosition(-(t+3)*44100/60/1024 + 400, 600-2048);//600-4096);
+			s.setPosition(-(t+3)*44100/60/1024 + 400, 600-s.getGlobalBounds().height);
 
 			window.clear();
 			window.draw(s);

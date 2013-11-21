@@ -1,12 +1,11 @@
-public class PeakTransform implements ITransform
+public class PeakTransform extends BaseTransform
 {
 	private int neigh;
-	private ITransform in;
 
-	public PeakTransform(ITransform in, int neigh)
+	public PeakTransform(int neigh, ITransform in)
 	{
+		super(in);
 		this.neigh = neigh;
-		this.in = in;
 	}
 
 	public double[] Next() throws AudioReadException
