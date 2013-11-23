@@ -18,16 +18,27 @@ class Viewer
 	{
 		int size = (in.StreamLength() > MaxTextureSize ? MaxTextureSize : in.StreamLength());
 		int length = (in.BlockLength() > MaxTextureSize ? MaxTextureSize : in.BlockLength());
-		double[] data = in.Next();
-		int t = 0;
+		double max = 0;
 		Image image = new Image();
 		image.create(size, length);
 
-		do
+		for(int t=0; t<size; t++)
 		{
+			double[] data = in.Next();
 			for(int i=0; i<length; i++)
 			{
-				double a = data[i]/500;
+				if(data[i] > max)
+					max = data[i];
+			}
+		}
+		in.Rewind();
+
+		for(int t=0; t<size; t++)
+		{
+			double[] data = in.Next();
+			for(int i=0; i<length; i++)
+			{
+				double a = Math.sqrt(data[i]/max);
 				if(a > 1.0)
 					a = 1.0;
 				image.setPixel(t, length-i-1, new Color((int) (a*255), (int) (a*255), (int) (a*255)));
@@ -35,7 +46,7 @@ class Viewer
 
 			t++;
 			data = in.Next();
-		} while(t < size);
+		}
 
 		Texture tex = new Texture();
 		tex.loadFromImage(image);
