@@ -1,5 +1,5 @@
 public interface INoteAllocator
 {
-	void Add(int t, int freq);
+	void Add(int t, int hold, int freq);
 	Iterable<Note> Alloc();
 }

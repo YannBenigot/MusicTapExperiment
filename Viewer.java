@@ -101,7 +101,7 @@ class Viewer
 			{
 				if(note.t == t)
 				{
-					ttx[note.x][note.y] = Time;
+					ttx[note.x][note.y] = Time + note.hold - 1;
 				}
 				else if(note.t > t)
 				{
@@ -117,7 +117,7 @@ class Viewer
 
 			for(int x=0; x<4; x++)
 				for(int y=0; y<4; y++)
-					rects[x][y].setFillColor(new Color(255 * ttx[x][y] / Time, 0, 0));
+					rects[x][y].setFillColor(new Color(255 * (ttx[x][y] > Time ? Time : ttx[x][y]) / Time, 0, 0));
 
 			s.setPosition(-(t+3)*44100/60/1024 + 400, 600-s.getGlobalBounds().height);
 
