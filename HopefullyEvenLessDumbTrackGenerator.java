@@ -7,6 +7,7 @@ class NoteData
 	public int t;
 	public int hold;
 	public int freq;
+	public int startFreq;
 	public boolean keep;
 	public boolean updated;
 
@@ -15,6 +16,7 @@ class NoteData
 		this.t = t;
 		this.hold = 1;
 		this.freq = freq;
+		this.startFreq = freq;
 		this.keep = keep;
 		this.updated = true;
 	}
@@ -91,6 +93,7 @@ public class HopefullyEvenLessDumbTrackGenerator implements ITrackGenerator
 							noteData.updated = true;
 							noteData.keep = noteData.keep || (keep && data[j] >= avg);
 							noteData.hold++;
+							noteData.freq = j;
 							noteFound = true;
 							break;
 						}
@@ -111,7 +114,7 @@ public class HopefullyEvenLessDumbTrackGenerator implements ITrackGenerator
 				NoteData noteData = noteIt.next();
 
 				if(noteData.keep && !noteData.updated)
-					noteAllocator.Add((noteData.t-3) * 1024 * 60 / 44100, (noteData.hold > MinHoldTime ? noteData.hold : 1), noteData.freq);
+					noteAllocator.Add((noteData.t-3) * 1024 * 60 / 44100, (noteData.hold > MinHoldTime ? noteData.hold : 1), noteData.startFreq);
 
 				if(!noteData.updated)
 					noteIt.remove();
