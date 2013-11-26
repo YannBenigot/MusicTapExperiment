@@ -104,7 +104,6 @@ public class HopefullyEvenLessDumbTrackGenerator implements ITrackGenerator
 						NoteData noteData = new NoteData(i, j, keep && data[j] >= avg);
 						waitingNotes.add(noteData);
 					}
-					
 				}
 			}
 
@@ -114,7 +113,7 @@ public class HopefullyEvenLessDumbTrackGenerator implements ITrackGenerator
 				NoteData noteData = noteIt.next();
 
 				if(noteData.keep && !noteData.updated)
-					noteAllocator.Add((noteData.t-3) * 1024 * 60 / 44100, (noteData.hold > MinHoldTime ? noteData.hold : 1), noteData.startFreq);
+					noteAllocator.Add((noteData.t-3) * 1024 * 60 / 44100, (noteData.hold > MinHoldTime ? noteData.hold * 1024 * 60 / 44100 : 1), noteData.startFreq);
 
 				if(!noteData.updated)
 					noteIt.remove();
