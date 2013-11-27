@@ -6,12 +6,21 @@ public class SimpleNoteAllocator implements INoteAllocator
 	private Vector<Note> notes;
 	private int maxFreq;
 	private int upTime;
+	private INoteMapper noteMapper;
+	final static int[][] mapping =
+	{
+		{ 0,  1,  5,  6},
+		{ 2,  4,  7, 12},
+		{ 3,  8, 11, 13},
+		{ 9, 10, 14, 15}
+	};
 
 	public SimpleNoteAllocator(int maxFreq, int upTime)
 	{
 		this.maxFreq = maxFreq;
 		this.notes = new Vector<Note>();
 		this.upTime = upTime;
+		this.noteMapper = new SimpleNoteMapper(mapping);
 	}		
 
 	public void Add(int t, int hold, int freq)
@@ -20,7 +29,9 @@ public class SimpleNoteAllocator implements INoteAllocator
 			return;
 
 		int reducedFreq = freq * 16 / maxFreq;
-		Note n = new Note(t, hold, reducedFreq/4, reducedFreq%4);
+
+		Position p = noteMapper.Map(reducedFreq);
+		Note n = new Note(t, hold, p.X, p.Y);
 		notes.add(n);
 	}
 
