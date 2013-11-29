@@ -7,4 +7,15 @@ public class Position
 		this.X = X;
 		this.Y = Y;
 	}
+
+	public int hashCode()
+	{
+		return X*4+Y;
+	}
+
+	public boolean equals(Object o)
+	{
+		Position p = (Position) o;
+		return p.X == X && p.Y == Y;
+	}
 }

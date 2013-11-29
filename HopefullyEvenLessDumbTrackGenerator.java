@@ -2,28 +2,28 @@ import java.util.Vector;
 import java.util.Collections;
 import java.util.Iterator;
 
-class NoteData
-{
-	public int t;
-	public int hold;
-	public int freq;
-	public int startFreq;
-	public boolean keep;
-	public boolean updated;
-
-	public NoteData(int t, int freq, boolean keep)
-	{
-		this.t = t;
-		this.hold = 1;
-		this.freq = freq;
-		this.startFreq = freq;
-		this.keep = keep;
-		this.updated = true;
-	}
-}
-
 public class HopefullyEvenLessDumbTrackGenerator implements ITrackGenerator
 {
+	class NoteData
+	{
+		public int t;
+		public int hold;
+		public int freq;
+		public int startFreq;
+		public boolean keep;
+		public boolean updated;
+
+		public NoteData(int t, int freq, boolean keep)
+		{
+			this.t = t;
+			this.hold = 1;
+			this.freq = freq;
+			this.startFreq = freq;
+			this.keep = keep;
+			this.updated = true;
+		}
+	}
+
 	final static int MaxNote = 8;
 
 	private ITransform GetTransform(IAudioFile file) throws AudioReadException
@@ -48,7 +48,7 @@ public class HopefullyEvenLessDumbTrackGenerator implements ITrackGenerator
 	public Track GenerateTrack(IAudioFile file) throws AudioReadException
 	{
 		ITransform in = GetTransform(file);
-		INoteAllocator noteAllocator = new SimpleNoteAllocator(MaxFreq, Timeout);
+		INoteAllocator noteAllocator = new NoteChainsAllocator(MaxFreq, Timeout);
 		int blockLength = in.BlockLength();
 		double avgEnergy = 0;
 		double energy = 0;
