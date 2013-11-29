@@ -29,6 +29,7 @@ class ChainNoteData implements Comparable<ChainNoteData>
 public class NoteChainsAllocator implements INoteAllocator
 {
 	private Vector<ChainNoteData> notes;
+	private IFreqMapper originFreqMapper;
 	private INoteMapper originMapper;
 	private int maxFreq, timeout;
 
@@ -44,6 +45,7 @@ public class NoteChainsAllocator implements INoteAllocator
 	{
 		notes = new Vector<ChainNoteData>();
 		originMapper = new SimpleNoteMapper(mapping);
+		originFreqMapper = new SimpleFreqMapper();
 		this.maxFreq = maxFreq;
 		this.timeout = timeout;
 	}
@@ -66,6 +68,10 @@ public class NoteChainsAllocator implements INoteAllocator
 	{
 		Collections.sort(notes);
 
+		for(ChainNoteData n: notes)
+			originFreqMapper.Learn(n.freq);
+		originFreqMapper.Process();
+
 		INoteChainsGenerator generator = new SimpleNoteChainsGenerator(0.3, 120);
 
 		Iterable<Iterable<ChainNoteData>> chains = generator.GenerateNoteChains(notes);
@@ -84,7 +90,7 @@ public class NoteChainsAllocator implements INoteAllocator
 			states.put(chain, s);
 			s.it = chain.iterator();
 			s.el = s.it.next();
-			Position p = originMapper.Map((int)(16*Math.sqrt((double)s.el.freq/maxFreq)));
+			Position p = originMapper.Map(originFreqMapper.Map(s.el.freq));
 			s.p = p;
 			s.up = true;
 			s.allocator = new AngleNoteChainAllocator((i+s.el.t)%4, p.X, p.Y); // Random angle. Using garbage-generated value in order to still be deterministic
