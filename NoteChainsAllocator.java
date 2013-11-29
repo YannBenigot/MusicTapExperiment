@@ -10,11 +10,14 @@ class ChainNoteData implements Comparable<ChainNoteData>
 	public int t;
 	public int hold;
 	public int freq;
-	public ChainNoteData(int t, int hold, int freq)
+	public double priority;
+
+	public ChainNoteData(int t, int hold, int freq, double priority)
 	{
 		this.t = t;
 		this.hold = hold;
 		this.freq = freq;
+		this.priority = priority;
 	}
 
 	public int compareTo(ChainNoteData n)
@@ -45,9 +48,9 @@ public class NoteChainsAllocator implements INoteAllocator
 		this.timeout = timeout;
 	}
 
-	public void Add(int t, int hold, int freq)
+	public void Add(int t, int hold, int freq, double priority)
 	{
-		notes.add(new ChainNoteData(t, hold, freq));
+		notes.add(new ChainNoteData(t, hold, freq, priority));
 	}
 
 	private class ChainState
@@ -84,7 +87,7 @@ public class NoteChainsAllocator implements INoteAllocator
 			Position p = originMapper.Map((int)(16*Math.sqrt((double)s.el.freq/maxFreq)));
 			s.p = p;
 			s.up = true;
-			s.allocator = new AngleNoteChainAllocator((i+s.el.t)%4, p.X, p.Y);
+			s.allocator = new AngleNoteChainAllocator((i+s.el.t)%4, p.X, p.Y); // Random angle. Using garbage-generated value in order to still be deterministic
 			totalCount++;
 		}
 		System.out.format("Got %d chains on %d notes\n", totalCount, notes.size());
@@ -113,7 +116,7 @@ public class NoteChainsAllocator implements INoteAllocator
 
 					if(up[state.p.X][state.p.Y] == 0)
 					{
-						Note n = new Note(state.el.t, state.el.hold, state.p.X, state.p.Y);
+						Note n = new Note(state.el.t, state.el.hold, state.el.priority, state.p.X, state.p.Y);
 						trackNotes.add(n);
 						up[state.p.X][state.p.Y] = timeout + state.el.hold;
 					}

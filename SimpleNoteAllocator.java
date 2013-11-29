@@ -23,7 +23,7 @@ public class SimpleNoteAllocator implements INoteAllocator
 		this.noteMapper = new SimpleNoteMapper(mapping);
 	}		
 
-	public void Add(int t, int hold, int freq)
+	public void Add(int t, int hold, int freq, double priority)
 	{
 		if(freq >= maxFreq)
 			return;
@@ -31,7 +31,7 @@ public class SimpleNoteAllocator implements INoteAllocator
 		int reducedFreq = freq * 16 / maxFreq;
 
 		Position p = noteMapper.Map(reducedFreq);
-		Note n = new Note(t, hold, p.X, p.Y);
+		Note n = new Note(t, hold, priority, p.X, p.Y);
 		notes.add(n);
 	}
 

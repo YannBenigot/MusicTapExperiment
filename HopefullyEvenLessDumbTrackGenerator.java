@@ -12,8 +12,9 @@ public class HopefullyEvenLessDumbTrackGenerator implements ITrackGenerator
 		public int startFreq;
 		public boolean keep;
 		public boolean updated;
+		public double magnitude;
 
-		public NoteData(int t, int freq, boolean keep)
+		public NoteData(int t, int freq, boolean keep, double magnitude)
 		{
 			this.t = t;
 			this.hold = 1;
@@ -21,6 +22,7 @@ public class HopefullyEvenLessDumbTrackGenerator implements ITrackGenerator
 			this.startFreq = freq;
 			this.keep = keep;
 			this.updated = true;
+			this.magnitude = magnitude;
 		}
 	}
 
@@ -94,6 +96,8 @@ public class HopefullyEvenLessDumbTrackGenerator implements ITrackGenerator
 							noteData.updated = true;
 							noteData.keep = noteData.keep || (keep && data[j] >= avg * avgFactor);
 							noteData.hold++;
+							if(noteData.magnitude < data[j])
+								noteData.magnitude = data[j];
 							noteData.freq = j;
 							noteFound = true;
 							break;
@@ -102,7 +106,7 @@ public class HopefullyEvenLessDumbTrackGenerator implements ITrackGenerator
 
 					if(!noteFound)
 					{
-						NoteData noteData = new NoteData(i, j, keep && data[j] >= avg * avgFactor);
+						NoteData noteData = new NoteData(i, j, keep && data[j] >= avg * avgFactor, data[j]);
 						waitingNotes.add(noteData);
 					}
 				}
@@ -114,7 +118,7 @@ public class HopefullyEvenLessDumbTrackGenerator implements ITrackGenerator
 				NoteData noteData = noteIt.next();
 
 				if(noteData.keep && !noteData.updated)
-					noteAllocator.Add((noteData.t-3) * 1024 * 60 / 44100, (noteData.hold > MinHoldTime ? noteData.hold * 1024 * 60 / 44100 : 1), noteData.startFreq);
+					noteAllocator.Add((noteData.t-3) * 1024 * 60 / 44100, (noteData.hold > MinHoldTime ? noteData.hold * 1024 * 60 / 44100 : 1), noteData.startFreq, noteData.magnitude);
 
 				if(!noteData.updated)
 					noteIt.remove();

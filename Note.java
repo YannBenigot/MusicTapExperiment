@@ -2,14 +2,16 @@ public class Note implements Comparable<Note>
 {
 	public int t;
 	public int x, y;
-	int hold;
+	public int hold;
+	public double priority;
 
-	public Note(int _t, int _hold, int _x, int _y)
+	public Note(int _t, int _hold, double _priority, int _x, int _y)
 	{
 		t = _t;
 		x = _x;
 		y = _y;
 		hold = _hold;
+		priority = _priority;
 	}
 
 	public int compareTo(Note n)
