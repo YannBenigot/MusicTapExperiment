@@ -19,19 +19,25 @@ public class SimpleNoteChainsGenerator implements INoteChainsGenerator
 
 		for(ChainNoteData note: notes)
 		{
-			boolean found = false;
+			Vector<ChainNoteData> bestChain = null;
+			double bestChainScore = freqFactor;
+
 			for(Vector<ChainNoteData> chain: currentChains)
 			{
 				ChainNoteData l = chain.lastElement();
-				if(Math.abs(l.freq-note.freq) < freqFactor * note.freq)
+				double score = ((double) Math.abs(l.freq-note.freq)) / note.freq;
+				if(l.t < note.t && score < bestChainScore)
 				{
-					chain.add(l);
-					found = true;
-					break;
+					bestChainScore = score;
+					bestChain = chain;
 				}
 			}
 
-			if(!found)
+			if(bestChain != null)
+			{
+				bestChain.add(note);
+			}
+			else
 			{
 				Vector<ChainNoteData> newChain = new Vector<ChainNoteData>();
 				newChain.add(note);

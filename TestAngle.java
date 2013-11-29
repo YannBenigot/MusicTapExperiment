@@ -2,7 +2,7 @@ public class TestAngle
 {
 	public static void main(String[] args)
 	{
-		INoteChainAllocator n = new AngleNoteChainAllocator(Double.parseDouble(args[0]), 1, 1);
+		INoteChainAllocator n = new AngleNoteChainAllocator(Integer.parseInt(args[0]), 1, 1);
 
 		for(int i=0; i<16; i++)
 		{

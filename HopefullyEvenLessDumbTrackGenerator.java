@@ -44,6 +44,7 @@ public class HopefullyEvenLessDumbTrackGenerator implements ITrackGenerator
 	final static double EnergyFactor = 0.3;
 	final static int MaxFreqSpacing = 3;
 	final static int MinHoldTime = 30;
+	final static double avgFactor = 0.7;
 
 	public Track GenerateTrack(IAudioFile file) throws AudioReadException
 	{
@@ -91,7 +92,7 @@ public class HopefullyEvenLessDumbTrackGenerator implements ITrackGenerator
 						if(Math.abs(noteData.freq-j) <= MaxFreqSpacing)
 						{
 							noteData.updated = true;
-							noteData.keep = noteData.keep || (keep && data[j] >= avg);
+							noteData.keep = noteData.keep || (keep && data[j] >= avg * avgFactor);
 							noteData.hold++;
 							noteData.freq = j;
 							noteFound = true;
@@ -101,7 +102,7 @@ public class HopefullyEvenLessDumbTrackGenerator implements ITrackGenerator
 
 					if(!noteFound)
 					{
-						NoteData noteData = new NoteData(i, j, keep && data[j] >= avg);
+						NoteData noteData = new NoteData(i, j, keep && data[j] >= avg * avgFactor);
 						waitingNotes.add(noteData);
 					}
 				}

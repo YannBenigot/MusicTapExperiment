@@ -62,7 +62,7 @@ public class NoteChainsAllocator implements INoteAllocator
 	{
 		Collections.sort(notes);
 
-		INoteChainsGenerator generator = new SimpleNoteChainsGenerator(0.1, 10);
+		INoteChainsGenerator generator = new SimpleNoteChainsGenerator(0.3, 120);
 
 		Iterable<Iterable<ChainNoteData>> chains = generator.GenerateNoteChains(notes);
 
@@ -81,12 +81,14 @@ public class NoteChainsAllocator implements INoteAllocator
 			Position p = originMapper.Map((int)(16*Math.sqrt((double)s.el.freq/maxFreq)));
 			s.p = p;
 			s.up = true;
-			s.allocator = new AngleNoteChainAllocator(Math.PI/2, p.X, p.Y);
+			s.allocator = new AngleNoteChainAllocator(2, p.X, p.Y);
 			totalCount++;
 		}
+		System.out.format("Got %d chains on %d notes\n", totalCount, notes.size());
 
 		int t = 0;
 		int finishedCount = 0;
+		int skipped = 0;
 		while(finishedCount < totalCount)
 		{
 			for(Iterable<ChainNoteData> chain: chains)
@@ -100,7 +102,10 @@ public class NoteChainsAllocator implements INoteAllocator
 						positions.add(state.p);
 						state.p = state.allocator.Next(state.up);
 						if(positions.contains(state.p))
+						{
+							skipped++;
 							break;
+						}
 					}
 
 					if(up[state.p.X][state.p.Y] == 0)
@@ -120,6 +125,7 @@ public class NoteChainsAllocator implements INoteAllocator
 						}
 						else
 						{
+							skipped++;
 							finishedCount++;
 							break;
 						}
@@ -133,6 +139,8 @@ public class NoteChainsAllocator implements INoteAllocator
 					if(up[x][y] > 0)
 						up[x][y]--;
 		}
+
+		System.out.format("Skipped %d notes", skipped);
 
 		return trackNotes;
 	}
