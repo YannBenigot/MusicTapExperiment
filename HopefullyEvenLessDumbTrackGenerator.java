@@ -40,11 +40,11 @@ public class HopefullyEvenLessDumbTrackGenerator implements ITrackGenerator
 
 	final static int MaxFreq = 512;
 	final static int Timeout = 10;
-	final static double factor = 0.9;
-	final static double EnergyFactor = 0.3;
+	final static double factor = 0.99;
+	final static double EnergyFactor = 0.5;
 	final static int MaxFreqSpacing = 3;
 	final static int MinHoldTime = 30;
-	final static double avgFactor = 0.7;
+	final static double avgFactor = 1.0;
 
 	public Track GenerateTrack(IAudioFile file) throws AudioReadException
 	{

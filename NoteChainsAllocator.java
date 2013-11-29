@@ -3,6 +3,7 @@ import java.util.Iterator;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Random;
 
 class ChainNoteData implements Comparable<ChainNoteData>
 {
@@ -72,8 +73,10 @@ public class NoteChainsAllocator implements INoteAllocator
 
 		HashMap<Iterable<ChainNoteData>, ChainState> states = new HashMap<Iterable<ChainNoteData>, ChainState>();
 		int totalCount = 0;
+		int i = 0;
 		for(Iterable<ChainNoteData> chain: chains)
 		{
+			i++;
 			ChainState s = new ChainState();
 			states.put(chain, s);
 			s.it = chain.iterator();
@@ -81,7 +84,7 @@ public class NoteChainsAllocator implements INoteAllocator
 			Position p = originMapper.Map((int)(16*Math.sqrt((double)s.el.freq/maxFreq)));
 			s.p = p;
 			s.up = true;
-			s.allocator = new AngleNoteChainAllocator(2, p.X, p.Y);
+			s.allocator = new AngleNoteChainAllocator((i+s.el.t)%4, p.X, p.Y);
 			totalCount++;
 		}
 		System.out.format("Got %d chains on %d notes\n", totalCount, notes.size());
