@@ -72,7 +72,7 @@ public class NoteChainsAllocator implements INoteAllocator
 			originFreqMapper.Learn(n.freq);
 		originFreqMapper.Process();
 
-		INoteChainsGenerator generator = new SimpleNoteChainsGenerator(0.3, 120);
+		INoteChainsGenerator generator = new SimpleNoteChainsGenerator(0.4, 120);
 
 		Iterable<Iterable<ChainNoteData>> chains = generator.GenerateNoteChains(notes);
 

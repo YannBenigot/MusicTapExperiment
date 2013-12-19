@@ -5,6 +5,8 @@ public class SimpleNoteChainsGenerator implements INoteChainsGenerator
 {
 	private double freqFactor;
 	private int maxChainTime;
+	final static double FreqValue = 0.2;
+	final static double MagnValue = 0.8;
 
 	public SimpleNoteChainsGenerator(double freqFactor, int maxChainTime)
 	{
@@ -25,7 +27,8 @@ public class SimpleNoteChainsGenerator implements INoteChainsGenerator
 			for(Vector<ChainNoteData> chain: currentChains)
 			{
 				ChainNoteData l = chain.lastElement();
-				double score = ((double) Math.abs(l.freq-note.freq)) / note.freq;
+				double score = ((double) Math.abs(l.freq-note.freq)) / Math.max(note.freq, l.freq) * FreqValue
+					+ Math.abs(l.priority - note.priority) / Math.max(note.priority, l.priority) * MagnValue;
 				if(l.t < note.t && score < bestChainScore)
 				{
 					bestChainScore = score;
