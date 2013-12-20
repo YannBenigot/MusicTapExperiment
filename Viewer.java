@@ -43,9 +43,6 @@ class Viewer
 					a = 1.0;
 				image.setPixel(t, length-i-1, new Color((int) (a*255), (int) (a*255), (int) (a*255)));
 			}
-
-			t++;
-			data = in.Next();
 		}
 
 		Texture tex = new Texture();
@@ -64,7 +61,7 @@ class Viewer
 		Track track = generator.GenerateTrack(data);
 		ITrackFilter difficulty = new DifficultyTrackFilter(7);
 		track = difficulty.Filter(track);
-		Texture tex = DataToTexture(new IgnoreSmallHarmonicsTransform(1.0, new TopHarmonicsTransform(8, new PeakTransform(16, new TruncateTransform(512, new FFTTransform(new JTransformsFFT(8192), new WindowTransform(new HannWindow(), 8192, new KeepTransform(8, new AudioFileTransformAdapter(1024, new WavAudioFile(args[0]))))))))));
+		Texture tex = DataToTexture(new IgnoreSmallHarmonicsTransform(0.5, new TopHarmonicsTransform(8, new PeakTransform(16, new TruncateTransform(512, new FFTTransform(new JTransformsFFT(8192), new WindowTransform(new HannWindow(), 8192, new KeepTransform(8, new AudioFileTransformAdapter(1024, new WavAudioFile(args[0]))))))))));
 
 		Sprite s = new Sprite(tex);
 
