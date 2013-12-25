@@ -1,0 +1,162 @@
+package org.musictap.trackgenerators.standard;
+import org.musictap.interfaces.*;
+
+import java.util.Vector;
+import java.util.Iterator;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Random;
+
+class ChainNoteData implements Comparable<ChainNoteData>
+{
+	public int t;
+	public int hold;
+	public int freq;
+	public double priority;
+
+	public ChainNoteData(int t, int hold, int freq, double priority)
+	{
+		this.t = t;
+		this.hold = hold;
+		this.freq = freq;
+		this.priority = priority;
+	}
+
+	public int compareTo(ChainNoteData n)
+	{
+		return t-n.t;
+	}
+}
+
+public class NoteChainsAllocator implements INoteAllocator
+{
+	private Vector<ChainNoteData> notes;
+	private IFreqMapper originFreqMapper;
+	private INoteMapper originMapper;
+	private int maxFreq, timeout;
+
+	final private static int[][] mapping =
+	{
+		{ 0,  1,  5,  6},
+		{ 2,  4,  7, 12},
+		{ 3,  8, 11, 13},
+		{ 9, 10, 14, 15}
+	};
+
+	public NoteChainsAllocator(int maxFreq, int timeout)
+	{
+		notes = new Vector<ChainNoteData>();
+		originMapper = new SimpleNoteMapper(mapping);
+		originFreqMapper = new SimpleFreqMapper();
+		this.maxFreq = maxFreq;
+		this.timeout = timeout;
+	}
+
+	public void Add(int t, int hold, int freq, double priority)
+	{
+		notes.add(new ChainNoteData(t, hold, freq, priority));
+	}
+
+	private class ChainState
+	{
+		public Iterator<ChainNoteData> it;
+		public ChainNoteData el;
+		public boolean up;
+		public Position p;
+		public INoteChainAllocator allocator;
+	}
+
+	public Iterable<Note> Alloc()
+	{
+		Collections.sort(notes);
+
+		for(ChainNoteData n: notes)
+			originFreqMapper.Learn(n.freq);
+		originFreqMapper.Process();
+
+		INoteChainsGenerator generator = new SimpleNoteChainsGenerator(0.4, 120);
+
+		Iterable<Iterable<ChainNoteData>> chains = generator.GenerateNoteChains(notes);
+
+		int up[][] = new int[4][4];
+
+		Vector<Note> trackNotes = new Vector<Note>();
+
+		HashMap<Iterable<ChainNoteData>, ChainState> states = new HashMap<Iterable<ChainNoteData>, ChainState>();
+		int totalCount = 0;
+		int i = 0;
+		for(Iterable<ChainNoteData> chain: chains)
+		{
+			i++;
+			ChainState s = new ChainState();
+			states.put(chain, s);
+			s.it = chain.iterator();
+			s.el = s.it.next();
+			Position p = originMapper.Map(originFreqMapper.Map(s.el.freq));
+			s.p = p;
+			s.up = true;
+			s.allocator = new AngleNoteChainAllocator((i+s.el.t)%4, p.X, p.Y); // Random angle. Using garbage-generated value in order to still be deterministic
+			totalCount++;
+		}
+		System.out.format("Got %d chains on %d notes\n", totalCount, notes.size());
+
+		int t = 0;
+		int finishedCount = 0;
+		int skipped = 0;
+		while(finishedCount < totalCount)
+		{
+			for(Iterable<ChainNoteData> chain: chains)
+			{
+				ChainState state = states.get(chain);
+				if(state.el.t == t)
+				{
+					HashSet<Position> positions = new HashSet<Position>();
+					while(up[state.p.X][state.p.Y] != 0)
+					{
+						positions.add(state.p);
+						state.p = state.allocator.Next(state.up);
+						if(positions.contains(state.p))
+						{
+							skipped++;
+							break;
+						}
+					}
+
+					if(up[state.p.X][state.p.Y] == 0)
+					{
+						Note n = new Note(state.el.t, state.el.hold, state.el.priority, state.p.X, state.p.Y);
+						trackNotes.add(n);
+						up[state.p.X][state.p.Y] = timeout + state.el.hold;
+					}
+
+					do
+					{	if(state.it.hasNext())
+						{
+							ChainNoteData nel = state.it.next();
+							state.up = nel.freq >= state.el.freq;
+							state.el = nel;
+							state.p = state.allocator.Next(state.up);
+						}
+						else
+						{
+							skipped++;
+							finishedCount++;
+							break;
+						}
+					} while(state.el.t == t);
+				}
+			}
+
+			t++;
+			for(int x=0; x<4; x++)
+				for(int y=0; y<4; y++)
+					if(up[x][y] > 0)
+						up[x][y]--;
+		}
+
+		System.out.format("Skipped %d notes", skipped);
+
+		return trackNotes;
+	}
+}
