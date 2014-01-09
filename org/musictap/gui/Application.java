@@ -7,6 +7,8 @@ import org.musictap.trackgenerators.StandardTrackGenerator;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL10;
@@ -14,14 +16,105 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.utils.TimeUtils;
 
 public class Application implements ApplicationListener 
 {
 	private ICell cells[][];
-	private int frame;
 	private Music music;
 
+	private class TapInput implements InputProcessor
+	{
+		Position positions[];
+		boolean touched[][];
+		
+		final static int MaxPointers = 32;
+		public TapInput()
+		{
+			positions = new Position[MaxPointers];
+			touched = new boolean[4][4];
+		}
+		
+		@Override
+		public boolean touchDown(int x, int y, int pointer, int button)
+		{
+			int cx = (int) x * 4 / 512;
+			int cy = (int) y * 4 / 512;
+			if(cy >= 4)
+				return false;
+			
+			if(!touched[cx][cy])
+			{
+				touched[cx][cy] = true;
+				positions[pointer] = new Position(cx, cy);
+				cells[cx][cy].OnTouchStart((long)(music.getPosition()*60.0f));
+				return false;
+			}
+			
+			return false;
+		}
+		
+		@Override
+		public boolean touchUp(int x, int y, int pointer, int button)
+		{
+			Position pos = positions[pointer];
+			if(pos != null)
+			{
+				if(touched[pos.X][pos.Y])
+				{
+					touched[pos.X][pos.Y] = false;
+					positions[pointer] = null;
+					cells[pos.X][pos.Y].OnTouchEnd((long)(music.getPosition()*60.0f));
+				}
+			}
+			
+			return false;
+		}
+
+		@Override
+		public boolean keyDown(int keycode)
+		{
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public boolean keyUp(int keycode)
+		{
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public boolean keyTyped(char character)
+		{
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public boolean touchDragged(int screenX, int screenY, int pointer)
+		{
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public boolean mouseMoved(int screenX, int screenY)
+		{
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public boolean scrolled(int amount)
+		{
+			// TODO Auto-generated method stub
+			return false;
+		}
+	}
 	public void create () 
 	{
 		try
@@ -39,6 +132,8 @@ public class Application implements ApplicationListener
 					cells[x][y] = new NoteCell(x, y, track);
 		
 			music.play();
+			TapInput tapInput = new TapInput();
+			Gdx.input.setInputProcessor(tapInput);
 		}
 		catch(Exception e)
 		{

@@ -38,14 +38,15 @@ public class NoteCell implements ICell
 
 	@Override
 	public void OnTouchStart(long time) {
+		System.out.printf("start %d %d %d\n", x, y, time);
 		if(currentNote == null)
 			return;
 		
-		if(currentNote.t - GameParameters.TimeTolerance < time)
+		if(currentNote.t - GameParameters.TimeTolerance < time || currentNote.t + GameParameters.TimeTolerance > time)
 		{
 			noteTapped = true;
 			
-			if(currentNote.hold == 0)
+			if(currentNote.hold <= 1)
 			{
 				//Success();
 				noteValidated = true;
@@ -56,12 +57,13 @@ public class NoteCell implements ICell
 	@Override
 	public void OnTouchEnd(long time)
 	{
+		System.out.printf("stop %d %d %d\n", x, y, time);
 		if(currentNote == null)
 			return;
 		
 		noteTapped = false;
 		
-		if(currentNote.hold > 0 && currentNote.t + currentNote.hold - GameParameters.TimeTolerance < time)
+		if(currentNote.hold > 1 && currentNote.t + currentNote.hold - GameParameters.TimeTolerance < time)
 		{
 			//Success();
 			noteValidated = true;
@@ -82,7 +84,6 @@ public class NoteCell implements ICell
 		
 		if(time < currentNote.t && time + GameParameters.NoteAnticipationDelay >= currentNote.t)
 		{
-			System.out.printf("%d %d\n", time, currentNote.t);
 			float f = 1.0f - ((float)(currentNote.t - time)) / GameParameters.NoteAnticipationDelay;
 			
 			shapeRenderer.setColor(0.5f, 0.5f, 0.5f, f*1.0f);
