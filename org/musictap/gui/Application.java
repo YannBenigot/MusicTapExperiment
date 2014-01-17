@@ -12,6 +12,7 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL10;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -40,6 +41,7 @@ public class Application implements ApplicationListener
 		@Override
 		public boolean touchDown(int x, int y, int pointer, int button)
 		{
+			y = Gdx.graphics.getHeight()-y;
 			int cx = (int) x * 4 / 512;
 			int cy = (int) y * 4 / 512;
 			if(cy >= 4)
@@ -134,6 +136,9 @@ public class Application implements ApplicationListener
 			music.play();
 			TapInput tapInput = new TapInput();
 			Gdx.input.setInputProcessor(tapInput);
+			
+			OrthographicCamera camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+			camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		}
 		catch(Exception e)
 		{

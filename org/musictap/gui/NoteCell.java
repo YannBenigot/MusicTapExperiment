@@ -6,6 +6,7 @@ import java.util.Vector;
 import org.musictap.interfaces.Note;
 import org.musictap.interfaces.Track;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 
@@ -17,6 +18,7 @@ public class NoteCell implements ICell
 	private Note currentNote;
 	private boolean noteValidated;
 	private boolean noteTapped;
+	private Color color;
 
 	public NoteCell(int x, int y, Track track)
 	{
@@ -34,6 +36,8 @@ public class NoteCell implements ICell
 			currentNote = noteIterator.next();
 		else
 			currentNote = null;
+		
+		color = new Color(1.0f, 1.0f, 1.0f, 1.0f);
 	}
 
 	@Override
@@ -52,6 +56,8 @@ public class NoteCell implements ICell
 				noteValidated = true;
 			}
 		}
+		
+		color = new Color(0.0f, 1.0f, 0.0f, 1.0f);
 	}
 
 	@Override
@@ -68,7 +74,8 @@ public class NoteCell implements ICell
 			//Success();
 			noteValidated = true;
 		}
-
+		
+		color = new Color(1.0f, 1.0f, 1.0f, 1.0f);
 	}
 
 	@Override
@@ -76,7 +83,8 @@ public class NoteCell implements ICell
 	{
 		ShapeRenderer shapeRenderer = new ShapeRenderer();
 		shapeRenderer.begin(ShapeType.Line);
-		shapeRenderer.rect(x * 128, y * 128, 128, 128);
+		shapeRenderer.setColor(color);
+		shapeRenderer.rect(x * 128+1, y * 128+1, 128-1, 128-1);
 		shapeRenderer.end();
 	
 		if(currentNote == null)
