@@ -8,6 +8,12 @@ import org.musictap.interfaces.Track;
 
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Mesh;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Pixmap.Format;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.VertexAttribute;
+import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Matrix4;
@@ -39,12 +45,12 @@ public class NoteCell implements ICell
 		else
 			currentNote = null;
 		
-		color = new Color(1.0f, 1.0f, 1.0f, 1.0f);
+		color = new Color(0.0f, 0.0f, 1.0f, 1.0f);
 	}
 
 	@Override
 	public void OnTouchStart(long time) {
-		System.out.printf("start %d %d %d\n", x, y, time);
+		color = new Color(0.0f, 0.3f, 0.0f, 1.0f);
 		if(currentNote == null)
 			return;
 		
@@ -58,14 +64,12 @@ public class NoteCell implements ICell
 				noteValidated = true;
 			}
 		}
-		
-		color = new Color(0.0f, 1.0f, 0.0f, 1.0f);
 	}
 
 	@Override
 	public void OnTouchEnd(long time)
 	{
-		System.out.printf("stop %d %d %d\n", x, y, time);
+		color = new Color(0.0f, 0.0f, 1.0f, 1.0f);
 		if(currentNote == null)
 			return;
 		
@@ -76,47 +80,59 @@ public class NoteCell implements ICell
 			//Success();
 			noteValidated = true;
 		}
-		
-		color = new Color(1.0f, 1.0f, 1.0f, 1.0f);
 	}
 
+	static Texture tex;
+	private static void rectRGBA(float x, float y, float w, float h, float r, float g, float b, float a)
+	{
+		if(tex == null)
+		{
+			Pixmap pix = new Pixmap(1, 1, Format.RGB888);
+			pix.setColor(1.0f, 1.0f, 1.0f, 1.0f);
+			pix.drawPixel(0, 0);
+			tex = new Texture(pix);
+		}
+		
+		Application.Batch.setColor(r, g, b, a);
+		Application.Batch.draw(tex, x, y, w, h);
+	}
+	
 	@Override
 	public void Draw(long time)
 	{
-		ShapeRenderer shapeRenderer = new ShapeRenderer();
-		Matrix4 m = new Matrix4();
-		m.idt();
-		shapeRenderer.setProjectionMatrix(m);
-		shapeRenderer.begin(ShapeType.Line);
-		shapeRenderer.setColor(color);
-		color.g = (1.0f + (float)Math.sin(time/60))/2;
-		shapeRenderer.rect(x * 64+1, y * 64+1, 64-1, 64-1);
-		shapeRenderer.end();
+		//color.g = (1.0f + (float)Math.sin(time/60))/2;
+		rectRGBA(x * 128, y * 128, 128, 128, color.r, color.g, color.b, color.a);
 	
 		if(currentNote == null)
 			return;
 		
-		if(time < currentNote.t && time + GameParameters.NoteAnticipationDelay >= currentNote.t)
+		// Note is in the future
+		if(time <= currentNote.t && time + GameParameters.NoteAnticipationDelay >= currentNote.t)
 		{
 			float f = 1.0f - ((float)(currentNote.t - time)) / GameParameters.NoteAnticipationDelay;
 			
-			shapeRenderer.begin(ShapeType.Filled);
-			shapeRenderer.setColor(0.5f, 0.5f, 0.5f, f*1.0f);			
-			shapeRenderer.rect(x * 64, y * 64, 64, 64 * f/2);
-			shapeRenderer.rect(x * 64, (y + 1.0f - f/2) * 64, 64, 64 * f/2);
-			shapeRenderer.end();
+			rectRGBA(x * 128, y * 128, 128, 128 * f/2, f*0.5f, f*0.5f, f*0.5f, 1.0f);
+			rectRGBA(x * 128, (y + 1.0f - f/2) * 128, 128, 128 * f/2, f*0.5f, f*0.5f, f*0.5f, 1.0f);
 		}
-		if(currentNote.t <= time && currentNote.t + GameParameters.ResultDelay > time)
+		
+		if(currentNote.t < time && currentNote.t + currentNote.hold > time)
 		{
-			float f = 1.0f - ((float)(time - currentNote.t)) / GameParameters.ResultDelay;
-			
-			shapeRenderer.begin(ShapeType.Filled);
-			if(noteValidated)
-				shapeRenderer.setColor(f*0.3f, f*0.8f, f*0.3f, 1.0f);
+			if(noteTapped)
+				rectRGBA(x * 128, y * 128, 128, 128, 0.0f, 0.5f, 0.5f, 1.0f);
 			else
-				shapeRenderer.setColor(f*0.8f, f*0.3f, f*0.3f, f*1.0f);
-			shapeRenderer.rect(x * 64, y * 64, 64, 64);
-			shapeRenderer.end();
+				rectRGBA(x * 128, y * 128, 128, 128, 0.5f, 0.5f, 0.5f, 1.0f);
+			
+		}
+		
+		// Note is in the past
+		if(currentNote.t + currentNote.hold <= time && currentNote.t + currentNote.hold + GameParameters.ResultDelay > time)
+		{
+			float f = 1.0f - ((float)(time - currentNote.t - currentNote.hold)) / GameParameters.ResultDelay;
+			
+			if(noteValidated)
+				rectRGBA(x * 128, y * 128, 128, 128, f*0.3f, f*0.8f, f*0.3f, 1.0f);
+			else
+				rectRGBA(x * 128, y * 128, 128, 128, f*0.8f, f*0.3f, f*0.3f, 1.0f);
 		}
 	}
 

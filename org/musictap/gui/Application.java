@@ -6,28 +6,23 @@ import org.musictap.trackfilters.DifficultyTrackFilter;
 import org.musictap.trackgenerators.StandardTrackGenerator;
 
 import com.badlogic.gdx.ApplicationListener;
-import com.badlogic.gdx.Files;
-import com.badlogic.gdx.Files.FileType;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
-import com.badlogic.gdx.utils.TimeUtils;
 
 public class Application implements ApplicationListener 
 {
 	private ICell cells[][];
 	private Music music;
 	private String filename;
+	private long start;
+	
+	public static SpriteBatch Batch;
+	public static OrthographicCamera Camera;
 	
 	public Application(String filename)
 	{
@@ -51,8 +46,8 @@ public class Application implements ApplicationListener
 		public boolean touchDown(int x, int y, int pointer, int button)
 		{
 			y = Gdx.graphics.getHeight()-y;
-			int cx = (int) x * 4 / 256;
-			int cy = (int) y * 4 / 256;
+			int cx = (int) x * 4 / Gdx.graphics.getWidth();
+			int cy = (int) y * 4 / Gdx.graphics.getHeight();
 			if(cx >= 4 || cy >= 4)
 				return false;
 			
@@ -133,7 +128,7 @@ public class Application implements ApplicationListener
 			IAudioFile file = new WavAudioFile(filename);
 			ITrackGenerator trackGenerator = new StandardTrackGenerator();
 			Track track = trackGenerator.GenerateTrack(file);
-			ITrackFilter filter = new DifficultyTrackFilter(7);
+			ITrackFilter filter = new DifficultyTrackFilter(4);
 			track = filter.Filter(track);
 		
 			FileHandle handle = Gdx.files.absolute(filename);
@@ -147,12 +142,15 @@ public class Application implements ApplicationListener
 				for(int y=0; y<4; y++)
 					cells[x][y] = new NoteCell(x, y, track);
 		
-			music.play();
 			TapInput tapInput = new TapInput();
 			Gdx.input.setInputProcessor(tapInput);
 			
-			OrthographicCamera camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-			camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+			Camera = new OrthographicCamera();
+			Camera.setToOrtho(false, 512, 512);
+			Batch = new SpriteBatch();
+			
+			music.play();
+			start = System.currentTimeMillis();
 		}
 		catch(Exception e)
 		{
@@ -162,14 +160,15 @@ public class Application implements ApplicationListener
 
 	public void render () 
 	{
-		long start = System.currentTimeMillis();
+		long rstart = System.currentTimeMillis();
 		if(!music.isPlaying())
 			return;
+		
 		Gdx.gl.glClearColor(0,  0,  0.2f, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 		
 		
-		long time = (long) (music.getPosition() * 60.0f);
+		long time = (System.currentTimeMillis() - start) * 60 / 1000;
 
 		long middle = System.currentTimeMillis();
 		System.out.printf("Update %d %f\n", time, music.getPosition());
@@ -177,12 +176,16 @@ public class Application implements ApplicationListener
 			for(int y=0; y<4; y++)
 				cells[x][y].Update(time);
 		
+		Camera.update();
+		Batch.setProjectionMatrix(Camera.combined);
+		Batch.begin();
 		long amiddle = System.currentTimeMillis();
 		for(int x=0; x<4; x++)
 			for(int y=0; y<4; y++)
 				cells[x][y].Draw(time);
+		Batch.end();
 		
-		System.out.printf("Time: %d %d %d\n", middle-start, amiddle-middle, System.currentTimeMillis()-amiddle);
+		System.out.printf("[%d] Time: %d %d %d\n", System.currentTimeMillis(), middle-rstart, amiddle-middle, System.currentTimeMillis()-amiddle);
 	}
 
 	public void resize (int width, int height) 
