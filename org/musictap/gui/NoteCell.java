@@ -6,9 +6,11 @@ import java.util.Vector;
 import org.musictap.interfaces.Note;
 import org.musictap.interfaces.Track;
 
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.math.Matrix4;
 
 public class NoteCell implements ICell
 {
@@ -82,9 +84,13 @@ public class NoteCell implements ICell
 	public void Draw(long time)
 	{
 		ShapeRenderer shapeRenderer = new ShapeRenderer();
+		Matrix4 m = new Matrix4();
+		m.idt();
+		shapeRenderer.setProjectionMatrix(m);
 		shapeRenderer.begin(ShapeType.Line);
 		shapeRenderer.setColor(color);
-		shapeRenderer.rect(x * 128+1, y * 128+1, 128-1, 128-1);
+		color.g = (1.0f + (float)Math.sin(time/60))/2;
+		shapeRenderer.rect(x * 64+1, y * 64+1, 64-1, 64-1);
 		shapeRenderer.end();
 	
 		if(currentNote == null)
@@ -94,23 +100,22 @@ public class NoteCell implements ICell
 		{
 			float f = 1.0f - ((float)(currentNote.t - time)) / GameParameters.NoteAnticipationDelay;
 			
-			shapeRenderer.setColor(0.5f, 0.5f, 0.5f, f*1.0f);
-			
 			shapeRenderer.begin(ShapeType.Filled);
-			shapeRenderer.rect(x * 128, y * 128, 128, 128 * f/2);
-			shapeRenderer.rect(x * 128, (y + 1.0f - f/2) * 128, 128, 128 * f/2);
+			shapeRenderer.setColor(0.5f, 0.5f, 0.5f, f*1.0f);			
+			shapeRenderer.rect(x * 64, y * 64, 64, 64 * f/2);
+			shapeRenderer.rect(x * 64, (y + 1.0f - f/2) * 64, 64, 64 * f/2);
 			shapeRenderer.end();
 		}
 		if(currentNote.t <= time && currentNote.t + GameParameters.ResultDelay > time)
 		{
 			float f = 1.0f - ((float)(time - currentNote.t)) / GameParameters.ResultDelay;
 			
+			shapeRenderer.begin(ShapeType.Filled);
 			if(noteValidated)
 				shapeRenderer.setColor(f*0.3f, f*0.8f, f*0.3f, 1.0f);
 			else
 				shapeRenderer.setColor(f*0.8f, f*0.3f, f*0.3f, f*1.0f);
-			shapeRenderer.begin(ShapeType.Filled);
-			shapeRenderer.rect(x * 128, y * 128, 128, 128);
+			shapeRenderer.rect(x * 64, y * 64, 64, 64);
 			shapeRenderer.end();
 		}
 	}

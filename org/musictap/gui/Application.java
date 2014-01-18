@@ -6,6 +6,8 @@ import org.musictap.trackfilters.DifficultyTrackFilter;
 import org.musictap.trackgenerators.StandardTrackGenerator;
 
 import com.badlogic.gdx.ApplicationListener;
+import com.badlogic.gdx.Files;
+import com.badlogic.gdx.Files.FileType;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
@@ -25,6 +27,13 @@ public class Application implements ApplicationListener
 {
 	private ICell cells[][];
 	private Music music;
+	private String filename;
+	
+	public Application(String filename)
+	{
+		this.filename = filename;
+		System.out.println("Filename: "+filename);
+	}
 
 	private class TapInput implements InputProcessor
 	{
@@ -42,9 +51,9 @@ public class Application implements ApplicationListener
 		public boolean touchDown(int x, int y, int pointer, int button)
 		{
 			y = Gdx.graphics.getHeight()-y;
-			int cx = (int) x * 4 / 512;
-			int cy = (int) y * 4 / 512;
-			if(cy >= 4)
+			int cx = (int) x * 4 / 256;
+			int cy = (int) y * 4 / 256;
+			if(cx >= 4 || cy >= 4)
 				return false;
 			
 			if(!touched[cx][cy])
@@ -121,13 +130,18 @@ public class Application implements ApplicationListener
 	{
 		try
 		{
-			IAudioFile file = new WavAudioFile("test.wav");
+			IAudioFile file = new WavAudioFile(filename);
 			ITrackGenerator trackGenerator = new StandardTrackGenerator();
 			Track track = trackGenerator.GenerateTrack(file);
 			ITrackFilter filter = new DifficultyTrackFilter(7);
 			track = filter.Filter(track);
 		
-			music = Gdx.audio.newMusic(new FileHandle("test.wav"));
+			FileHandle handle = Gdx.files.absolute(filename);
+			if(handle == null)
+				System.out.println("NULL HANDLE!");
+			if(!handle.exists())
+				System.out.println("FILE DOES NOT EXIST!");
+			music = Gdx.audio.newMusic(handle);
 			cells = new ICell[4][4];
 			for(int x=0; x<4; x++)
 				for(int y=0; y<4; y++)
@@ -148,6 +162,7 @@ public class Application implements ApplicationListener
 
 	public void render () 
 	{
+		long start = System.currentTimeMillis();
 		if(!music.isPlaying())
 			return;
 		Gdx.gl.glClearColor(0,  0,  0.2f, 1);
@@ -155,15 +170,19 @@ public class Application implements ApplicationListener
 		
 		
 		long time = (long) (music.getPosition() * 60.0f);
-		
+
+		long middle = System.currentTimeMillis();
+		System.out.printf("Update %d %f\n", time, music.getPosition());
 		for(int x=0; x<4; x++)
 			for(int y=0; y<4; y++)
 				cells[x][y].Update(time);
 		
+		long amiddle = System.currentTimeMillis();
 		for(int x=0; x<4; x++)
 			for(int y=0; y<4; y++)
 				cells[x][y].Draw(time);
 		
+		System.out.printf("Time: %d %d %d\n", middle-start, amiddle-middle, System.currentTimeMillis()-amiddle);
 	}
 
 	public void resize (int width, int height) 
