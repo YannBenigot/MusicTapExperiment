@@ -16,10 +16,11 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public class Application implements ApplicationListener 
 {
-	private ICell cells[][];
 	private Music music;
 	private String filename;
 	private long start;
+	private IMode currentMode;
+	public OrthographicCamera cellCamera[][];
 	
 	public static SpriteBatch Batch;
 	public static OrthographicCamera Camera;
@@ -30,6 +31,7 @@ public class Application implements ApplicationListener
 		System.out.println("Filename: "+filename);
 	}
 
+	// FIXME: a mode switch may happen while the user is touching the screen, breaking touchUp/touchDown consistency
 	private class TapInput implements InputProcessor
 	{
 		Position positions[];
@@ -45,7 +47,6 @@ public class Application implements ApplicationListener
 		@Override
 		public boolean touchDown(int x, int y, int pointer, int button)
 		{
-			y = Gdx.graphics.getHeight()-y;
 			int cx = (int) x * 4 / Gdx.graphics.getWidth();
 			int cy = (int) y * 4 / Gdx.graphics.getHeight();
 			if(cx >= 4 || cy >= 4)
@@ -55,7 +56,7 @@ public class Application implements ApplicationListener
 			{
 				touched[cx][cy] = true;
 				positions[pointer] = new Position(cx, cy);
-				cells[cx][cy].OnTouchStart((long)(music.getPosition()*60.0f));
+				currentMode.GetCells()[cx][cy].OnTouchStart((long)(music.getPosition()*60.0f));
 				return false;
 			}
 			
@@ -72,7 +73,7 @@ public class Application implements ApplicationListener
 				{
 					touched[pos.X][pos.Y] = false;
 					positions[pointer] = null;
-					cells[pos.X][pos.Y].OnTouchEnd((long)(music.getPosition()*60.0f));
+					currentMode.GetCells()[pos.X][pos.Y].OnTouchEnd((long)(music.getPosition()*60.0f));
 				}
 			}
 			
@@ -125,67 +126,76 @@ public class Application implements ApplicationListener
 	{
 		try
 		{
+			cellCamera = new OrthographicCamera[4][4];
+			for(int x=0; x<4; x++)
+				for(int y=0; y<4; y++)
+				{
+					cellCamera[x][y] = new OrthographicCamera();
+					cellCamera[x][y].setToOrtho(true, 4.0f, 4.0f);
+					cellCamera[x][y].update();
+					cellCamera[x][y].translate(-1.0f * x, -1.0f * y);
+				}
 			IAudioFile file = new WavAudioFile(filename);
 			ITrackGenerator trackGenerator = new StandardTrackGenerator();
 			Track track = trackGenerator.GenerateTrack(file);
 			ITrackFilter filter = new DifficultyTrackFilter(4);
 			track = filter.Filter(track);
-		
+
 			FileHandle handle = Gdx.files.absolute(filename);
 			if(handle == null)
 				System.out.println("NULL HANDLE!");
 			if(!handle.exists())
 				System.out.println("FILE DOES NOT EXIST!");
 			music = Gdx.audio.newMusic(handle);
-			cells = new ICell[4][4];
-			for(int x=0; x<4; x++)
-				for(int y=0; y<4; y++)
-					cells[x][y] = new NoteCell(x, y, track);
+			TrackPlayMode mode = new TrackPlayMode(track);
+			currentMode = mode;
 		
 			TapInput tapInput = new TapInput();
 			Gdx.input.setInputProcessor(tapInput);
 			
 			Camera = new OrthographicCamera();
-			Camera.setToOrtho(false, 512, 512);
+			Camera.setToOrtho(true, 512, 512);
+
 			Batch = new SpriteBatch();
 			
 			music.play();
+			mode.Start();
 			start = System.currentTimeMillis();
 		}
 		catch(Exception e)
 		{
+			// TODO: Create an IMode for error reporting
+			e.printStackTrace();
 			System.out.println("Error: " + e.getMessage());
 		}
 	}
 
 	public void render () 
-	{
-		long rstart = System.currentTimeMillis();
-		if(!music.isPlaying())
-			return;
-		
+	{	
 		Gdx.gl.glClearColor(0,  0,  0.2f, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 		
 		
 		long time = (System.currentTimeMillis() - start) * 60 / 1000;
-
-		long middle = System.currentTimeMillis();
-		System.out.printf("Update %d %f\n", time, music.getPosition());
+		
 		for(int x=0; x<4; x++)
 			for(int y=0; y<4; y++)
-				cells[x][y].Update(time);
+				currentMode.GetCells()[x][y].Update(time);
 		
 		Camera.update();
 		Batch.setProjectionMatrix(Camera.combined);
 		Batch.begin();
-		long amiddle = System.currentTimeMillis();
+		currentMode.GetHeader().Render(time);
 		for(int x=0; x<4; x++)
 			for(int y=0; y<4; y++)
-				cells[x][y].Draw(time);
+			{
+				Batch.end();
+				cellCamera[x][y].update();
+				Batch.setProjectionMatrix(cellCamera[x][y].combined);
+				Batch.begin();
+				currentMode.GetCells()[x][y].Draw(time);
+			}
 		Batch.end();
-		
-		System.out.printf("[%d] Time: %d %d %d\n", System.currentTimeMillis(), middle-rstart, amiddle-middle, System.currentTimeMillis()-amiddle);
 	}
 
 	public void resize (int width, int height) 

@@ -101,7 +101,7 @@ public class NoteCell implements ICell
 	public void Draw(long time)
 	{
 		//color.g = (1.0f + (float)Math.sin(time/60))/2;
-		rectRGBA(x * 128, y * 128, 128, 128, color.r, color.g, color.b, color.a);
+		rectRGBA(0, 0, 1, 1, color.r, color.g, color.b, color.a);
 	
 		if(currentNote == null)
 			return;
@@ -111,16 +111,16 @@ public class NoteCell implements ICell
 		{
 			float f = 1.0f - ((float)(currentNote.t - time)) / GameParameters.NoteAnticipationDelay;
 			
-			rectRGBA(x * 128, y * 128, 128, 128 * f/2, f*0.5f, f*0.5f, f*0.5f, 1.0f);
-			rectRGBA(x * 128, (y + 1.0f - f/2) * 128, 128, 128 * f/2, f*0.5f, f*0.5f, f*0.5f, 1.0f);
+			rectRGBA(0, 0, 1, f/2, f*0.5f, f*0.5f, f*0.5f, 1.0f);
+			rectRGBA(0, (1.0f - f/2), 1, f/2, f*0.5f, f*0.5f, f*0.5f, 1.0f);
 		}
 		
 		if(currentNote.t < time && currentNote.t + currentNote.hold > time)
 		{
 			if(noteTapped)
-				rectRGBA(x * 128, y * 128, 128, 128, 0.0f, 0.5f, 0.5f, 1.0f);
+				rectRGBA(0, 0, 1, 1, 0.0f, 0.5f, 0.5f, 1.0f);
 			else
-				rectRGBA(x * 128, y * 128, 128, 128, 0.5f, 0.5f, 0.5f, 1.0f);
+				rectRGBA(0, 0, 1, 1, 0.5f, 0.5f, 0.5f, 1.0f);
 			
 		}
 		
@@ -130,9 +130,9 @@ public class NoteCell implements ICell
 			float f = 1.0f - ((float)(time - currentNote.t - currentNote.hold)) / GameParameters.ResultDelay;
 			
 			if(noteValidated)
-				rectRGBA(x * 128, y * 128, 128, 128, f*0.3f, f*0.8f, f*0.3f, 1.0f);
+				rectRGBA(0, 0, 1, 1, f*0.3f, f*0.8f, f*0.3f, 1.0f);
 			else
-				rectRGBA(x * 128, y * 128, 128, 128, f*0.8f, f*0.3f, f*0.3f, 1.0f);
+				rectRGBA(0, 0, 1, 1, f*0.8f, f*0.3f, f*0.3f, 1.0f);
 		}
 	}
 

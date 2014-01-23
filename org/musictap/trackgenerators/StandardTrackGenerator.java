@@ -34,7 +34,7 @@ public class StandardTrackGenerator implements ITrackGenerator
 
 	final static int MaxNote = 8;
 
-	private ITransform GetTransform(IAudioFile file) throws AudioReadException
+	public static ITransform GetTransform(IAudioFile file) throws AudioReadException
 	{
 		return 
 		new IgnoreSmallHarmonicsTransform(0.5, 
