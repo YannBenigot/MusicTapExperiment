@@ -179,7 +179,7 @@ public class Application implements ApplicationListener
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 		
 		
-		long time = (System.currentTimeMillis() - start) * 60 / 1000;
+		long time = System.currentTimeMillis() - start;
 		
 		for(int x=0; x<4; x++)
 			for(int y=0; y<4; y++)

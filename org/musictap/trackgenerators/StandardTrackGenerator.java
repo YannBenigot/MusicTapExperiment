@@ -47,11 +47,11 @@ public class StandardTrackGenerator implements ITrackGenerator
 	}
 
 	final static int MaxFreq = 512;
-	final static int Timeout = 10;
+	final static int Timeout = 200;
 	final static double factor = 0.99;
 	final static double EnergyFactor = 0.5;
 	final static int MaxFreqSpacing = 3;
-	final static int MinHoldTime = 30;
+	final static int MinHoldTime = 600;
 	final static double avgFactor = 1.0;
 
 	public Track GenerateTrack(IAudioFile file) throws AudioReadException
@@ -124,7 +124,7 @@ public class StandardTrackGenerator implements ITrackGenerator
 				NoteData noteData = noteIt.next();
 
 				if(noteData.keep && !noteData.updated)
-					noteAllocator.Add((noteData.t-3) * 1024 * 60 / 44100, (noteData.hold > MinHoldTime ? noteData.hold * 1024 * 60 / 44100 : 1), noteData.startFreq, noteData.magnitude);
+					noteAllocator.Add((noteData.t-3) * 1024 * 1000 / 44100, (noteData.hold > MinHoldTime ? noteData.hold * 1024 * 60 / 44100 : 1), noteData.startFreq, noteData.magnitude);
 
 				if(!noteData.updated)
 					noteIt.remove();
