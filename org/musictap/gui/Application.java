@@ -51,8 +51,8 @@ public class Application implements ApplicationListener
 		public boolean touchDown(int x, int y, int pointer, int button)
 		{
 			int cx = (int) x * 4 / Gdx.graphics.getWidth();
-			int cy = (int) y * 4 / Gdx.graphics.getHeight();
-			if(cx >= 4 || cy >= 4)
+			int cy = (int) y * 6 / Gdx.graphics.getHeight() - 2;
+			if(cx >= 4 || cy >= 4 || cx < 0 || cy < 0)
 				return false;
 			
 			if(!touched[cx][cy])
