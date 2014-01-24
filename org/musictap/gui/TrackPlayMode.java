@@ -1,22 +1,23 @@
 package org.musictap.gui;
 
+import org.musictap.interfaces.ITransform;
 import org.musictap.interfaces.Track;
 
 public class TrackPlayMode implements IMode
 {
 	private Track track;
 	private long start;
-	public TrackPlayMode(Track track)
+	public TrackPlayMode(Track track, ITransform transform)
 	{
 		this.track = track;
-		this.header = new DumbHeader();
+		this.header = new DebugHeader(transform);
 		this.cells = new NoteCell[4][4];
 		for(int i=0; i<16; i++)
 			cells[i/4][i%4] = new NoteCell(i/4, i%4, track);
 		this.start = -1;
 	}
 	
-	private DumbHeader header;
+	private DebugHeader header;
 	@Override
 	public IHeader GetHeader()
 	{

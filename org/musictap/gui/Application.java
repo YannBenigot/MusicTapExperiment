@@ -1,9 +1,12 @@
 package org.musictap.gui;
 
 import org.musictap.audiofiles.WavAudioFile;
+import org.musictap.fft.JTransformsFFT;
 import org.musictap.interfaces.*;
 import org.musictap.trackfilters.DifficultyTrackFilter;
 import org.musictap.trackgenerators.StandardTrackGenerator;
+import org.musictap.transforms.AudioFileTransformAdapter;
+import org.musictap.transforms.FFTTransform;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
@@ -131,9 +134,9 @@ public class Application implements ApplicationListener
 				for(int y=0; y<4; y++)
 				{
 					cellCamera[x][y] = new OrthographicCamera();
-					cellCamera[x][y].setToOrtho(true, 4.0f, 4.0f);
+					cellCamera[x][y].setToOrtho(true, 4.0f, 6.0f);
 					cellCamera[x][y].update();
-					cellCamera[x][y].translate(-1.0f * x, -1.0f * y);
+					cellCamera[x][y].translate(-1.0f * x, -2.0f -1.0f * y);
 				}
 			IAudioFile file = new WavAudioFile(filename);
 			ITrackGenerator trackGenerator = new StandardTrackGenerator();
@@ -147,14 +150,14 @@ public class Application implements ApplicationListener
 			if(!handle.exists())
 				System.out.println("FILE DOES NOT EXIST!");
 			music = Gdx.audio.newMusic(handle);
-			TrackPlayMode mode = new TrackPlayMode(track);
+			TrackPlayMode mode = new TrackPlayMode(track, new FFTTransform(new JTransformsFFT(8192), new AudioFileTransformAdapter(8192, new WavAudioFile(filename))));
 			currentMode = mode;
 		
 			TapInput tapInput = new TapInput();
 			Gdx.input.setInputProcessor(tapInput);
 			
 			Camera = new OrthographicCamera();
-			Camera.setToOrtho(true, 512, 512);
+			Camera.setToOrtho(true, 4.0f, 6.0f);
 
 			Batch = new SpriteBatch();
 			

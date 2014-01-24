@@ -23,7 +23,7 @@ public class Toolbox
 		int width = Min(transform.StreamLength(), MaxTexSide);
 		int height = Min(transform.BlockLength(), MaxTexSide);
 		
-		Pixmap p = new Pixmap(width, height, Format.RGBA8888);
+		Pixmap p = new Pixmap(NP2(width), NP2(height), Format.RGBA8888);
 		
 		double maxVal = 0;
 		for(int i=0; i<transform.StreamLength(); i++)
@@ -33,7 +33,10 @@ public class Toolbox
 			for(int j=0; j<transform.BlockLength(); j++)
 			{
 				if(data[j] > maxVal)
+				{
+					System.out.printf("New max: %d %d %f\n", i, j, data[j]);
 					maxVal = data[j];
+				}
 			}
 		}
 		
@@ -45,12 +48,24 @@ public class Toolbox
 
 			for(int j=0; j<height; j++)
 			{
-				float f = (float) (data[j] / maxVal);
-				p.setColor(r * f, g * f, b * f, 1.0f);
+				float f = (float) (Math.pow(data[j] / maxVal, 0.2));
+				if(f == 0)
+					continue;
+				//p.setColor(r * f, g * f, b * f, 1.0f);
+				//System.out.println(f);
+				p.setColor(f, f, f, 1.0f);
 				p.drawPixel(i, j);
 			}
 		}
 		
 		return new Texture(p);
+	}
+	
+	public static int NP2(int n)
+	{
+		int ret = 1;
+		while(ret < n && ret < MaxTexSide)
+			ret *= 2;
+		return ret;
 	}
 }
