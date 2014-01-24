@@ -188,12 +188,14 @@ public class Application implements ApplicationListener
 		Camera.update();
 		Batch.setProjectionMatrix(Camera.combined);
 		Batch.begin();
+		Application.Batch.setColor(1.0f, 1.0f, 1.0f, 1.0f);
 		currentMode.GetHeader().Render(time);
 		for(int x=0; x<4; x++)
 			for(int y=0; y<4; y++)
 			{
 				Batch.end();
 				cellCamera[x][y].update();
+				Application.Batch.setColor(1.0f, 1.0f, 1.0f, 1.0f);
 				Batch.setProjectionMatrix(cellCamera[x][y].combined);
 				Batch.begin();
 				currentMode.GetCells()[x][y].Draw(time);

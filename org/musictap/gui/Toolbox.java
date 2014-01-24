@@ -34,7 +34,6 @@ public class Toolbox
 			{
 				if(data[j] > maxVal)
 				{
-					System.out.printf("New max: %d %d %f\n", i, j, data[j]);
 					maxVal = data[j];
 				}
 			}
@@ -51,9 +50,7 @@ public class Toolbox
 				float f = (float) (Math.pow(data[j] / maxVal, 0.2));
 				if(f == 0)
 					continue;
-				//p.setColor(r * f, g * f, b * f, 1.0f);
-				//System.out.println(f);
-				p.setColor(f, f, f, 1.0f);
+				p.setColor(r * f, g * f, b * f, 1.0f);
 				p.drawPixel(i, j);
 			}
 		}
