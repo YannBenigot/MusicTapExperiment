@@ -5,6 +5,7 @@ import org.musictap.fft.JTransformsFFT;
 import org.musictap.interfaces.*;
 import org.musictap.trackfilters.DifficultyTrackFilter;
 import org.musictap.trackgenerators.StandardTrackGenerator;
+import org.musictap.trackimporters.YubiosiTrackImporter;
 import org.musictap.transforms.AudioFileTransformAdapter;
 import org.musictap.transforms.FFTTransform;
 
@@ -19,7 +20,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public class Application implements ApplicationListener 
 {
-	private Music music;
+	private MusicPlayer music;
 	private String filename;
 	private long start;
 	private IMode currentMode;
@@ -59,7 +60,7 @@ public class Application implements ApplicationListener
 			{
 				touched[cx][cy] = true;
 				positions[pointer] = new Position(cx, cy);
-				currentMode.GetCells()[cx][cy].OnTouchStart((long)(music.getPosition()*60.0f));
+				currentMode.GetCells()[cx][cy].OnTouchStart((long)(music.GetPosition()));
 				return false;
 			}
 			
@@ -76,7 +77,7 @@ public class Application implements ApplicationListener
 				{
 					touched[pos.X][pos.Y] = false;
 					positions[pointer] = null;
-					currentMode.GetCells()[pos.X][pos.Y].OnTouchEnd((long)(music.getPosition()*60.0f));
+					currentMode.GetCells()[pos.X][pos.Y].OnTouchEnd((long)(music.GetPosition()));
 				}
 			}
 			
@@ -138,19 +139,21 @@ public class Application implements ApplicationListener
 					cellCamera[x][y].update();
 					cellCamera[x][y].translate(-1.0f * x, -2.0f -1.0f * y);
 				}
-			IAudioFile file = new WavAudioFile(filename);
+			/*IAudioFile file = new WavAudioFile(filename);
 			ITrackGenerator trackGenerator = new StandardTrackGenerator();
 			Track track = trackGenerator.GenerateTrack(file);
 			ITrackFilter filter = new DifficultyTrackFilter(4);
-			track = filter.Filter(track);
+			track = filter.Filter(track);*/
+			music = new MusicPlayer(new WavMusicPlayerFile(filename));
+			Track track = (new YubiosiTrackImporter()).ImportTrack(Gdx.files.absolute(filename + ".txt").reader());
 
 			FileHandle handle = Gdx.files.absolute(filename);
 			if(handle == null)
 				System.out.println("NULL HANDLE!");
 			if(!handle.exists())
 				System.out.println("FILE DOES NOT EXIST!");
-			music = Gdx.audio.newMusic(handle);
-			TrackPlayMode mode = new TrackPlayMode(track, new FFTTransform(new JTransformsFFT(8192), new AudioFileTransformAdapter(8192, new WavAudioFile(filename))));
+			//TrackPlayMode mode = new TrackPlayMode(track, new FFTTransform(new JTransformsFFT(8192), new AudioFileTransformAdapter(8192, new WavAudioFile(filename))));
+			TrackPlayMode mode = new TrackPlayMode(track, null);
 			currentMode = mode;
 		
 			TapInput tapInput = new TapInput();
@@ -161,7 +164,7 @@ public class Application implements ApplicationListener
 
 			Batch = new SpriteBatch();
 			
-			music.play();
+			music.Start();
 			mode.Start();
 			start = System.currentTimeMillis();
 		}
@@ -179,7 +182,8 @@ public class Application implements ApplicationListener
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 		
 		
-		long time = System.currentTimeMillis() - start;
+		//long time = System.currentTimeMillis() - start;
+		long time = music.GetPosition();
 		
 		for(int x=0; x<4; x++)
 			for(int y=0; y<4; y++)

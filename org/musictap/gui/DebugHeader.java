@@ -12,7 +12,7 @@ public class DebugHeader implements IHeader
 	{
 		try
 		{
-			texture = Toolbox.TransformToTexture(t, 1.0f, 1.0f, 1.0f);
+			//texture = Toolbox.TransformToTexture(t, 1.0f, 1.0f, 1.0f);
 		}
 		catch(Exception e)
 		{
@@ -23,7 +23,7 @@ public class DebugHeader implements IHeader
 	@Override
 	public void Render(long time)
 	{
-		Application.Batch.draw(texture, 0, 0, 8.0f, 2.0f);
+		//Application.Batch.draw(texture, 0, 0, 8.0f, 2.0f);
 		
 	}
 
